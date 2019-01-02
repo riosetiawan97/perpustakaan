@@ -80,7 +80,7 @@
                             <button id="form_submit" type="submit">Masuk <i class="ti-arrow-right"></i></button>
                         </div>
                         <div class="form-footer text-center mt-5">
-                            <p class="text-muted">Don't have an account? <a href="register.html">Sign up</a></p>
+                            <p class="text-muted">Belum Punya Akun? <a href=<?= base_url().'daftar'; ?>>Daftar</a></p>
                         </div>
                     </div>
                 <?php echo form_close(); ?>

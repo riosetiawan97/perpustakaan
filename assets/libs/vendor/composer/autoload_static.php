@@ -29,6 +29,10 @@ class ComposerStaticInit803db2f919779c6cf3166f8cc13162ad
         array (
             'Ramsey\\Uuid\\' => 12,
         ),
+        'M' => 
+        array (
+            'Moontoast\\Math\\' => 15,
+        ),
         'D' => 
         array (
             'Doctrine\\Instantiator\\' => 22,
@@ -58,6 +62,10 @@ class ComposerStaticInit803db2f919779c6cf3166f8cc13162ad
         'Ramsey\\Uuid\\' => 
         array (
             0 => __DIR__ . '/..' . '/ramsey/uuid/src',
+        ),
+        'Moontoast\\Math\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/moontoast/math/src/Moontoast/Math',
         ),
         'Doctrine\\Instantiator\\' => 
         array (
