@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Profil" };
 
 export default async function Profil() {
-  const s = await requireUser();
+  const s = await requireUser("/profil");
   const db = await getDb();
   const [u] = await db.select().from(schema.users).where(eq(schema.users.id, s.id));
   return (
@@ -18,7 +18,7 @@ export default async function Profil() {
       <div className="grid gap-6 md:grid-cols-2">
         <section className="panel p-5">
           <h2 className="mb-1 text-lg font-bold">Data diri</h2>
-          <p className="mb-4 text-sm text-muted">{u.email}{u.memberCode ? ` · ${u.memberCode}` : ""}</p>
+          <p className="mb-4 text-sm text-muted">{u.email}</p>
           <ActionForm
             action={updateProfileAction}
             submit="Simpan profil"

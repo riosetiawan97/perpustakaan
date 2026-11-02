@@ -4,7 +4,7 @@ import { saveBookAction } from "@/app/actions";
 import type { Book } from "@/lib/db/schema";
 import { Notice } from "./ui";
 
-export function BookForm({ book, categories }: { book?: Book; categories: { id: number; name: string }[] }) {
+export function BookForm({ slug, book, categories }: { slug: string; book?: Book; categories: { id: number; name: string }[] }) {
   const [state, action, pending] = useActionState(saveBookAction, undefined);
   const F = ({ name, label, type = "text", value, span }: { name: string; label: string; type?: string; value?: string | number | null; span?: boolean }) => (
     <div className={span ? "sm:col-span-2" : ""}>
@@ -14,6 +14,7 @@ export function BookForm({ book, categories }: { book?: Book; categories: { id: 
   );
   return (
     <form action={action} className="panel grid gap-4 p-5 sm:grid-cols-2">
+      <input type="hidden" name="slug" value={slug} />
       {book && <input type="hidden" name="id" value={book.id} />}
       {state?.error && <div className="sm:col-span-2"><Notice kind="error">{state.error}</Notice></div>}
       <F name="title" label="Judul" value={book?.title} span />
@@ -28,6 +29,7 @@ export function BookForm({ book, categories }: { book?: Book; categories: { id: 
           {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
       </div>
+      <F name="newCategory" label="Atau kategori baru" />
       <F name="shelf" label="Lokasi rak" value={book?.shelf} />
       <F name="totalCopies" label="Jumlah eksemplar" type="number" value={book?.totalCopies ?? 1} />
       <div className="sm:col-span-2">

@@ -4,10 +4,12 @@ import { createLoanAction } from "@/app/actions";
 import { Notice } from "./ui";
 
 export function LoanForm({
+  slug,
   members,
   books,
   loanDays,
 }: {
+  slug: string;
   members: { code: string; name: string }[];
   books: { id: number; title: string; available: number }[];
   loanDays: number;
@@ -20,6 +22,7 @@ export function LoanForm({
   return (
     <form ref={ref} action={action} className="panel space-y-4 p-5">
       <h2 className="text-xl font-bold">Peminjaman baru</h2>
+      <input type="hidden" name="slug" value={slug} />
       {state?.error && <Notice kind="error">{state.error}</Notice>}
       {state?.ok && <Notice kind="ok">{state.ok}</Notice>}
       <div>

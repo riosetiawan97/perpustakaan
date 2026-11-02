@@ -1,4 +1,5 @@
-// Dijalankan saat build di Vercel: membuat tabel & data awal di Postgres (Neon).
+// Dijalankan saat build di Vercel: membuat/memperbarui tabel & data awal di Postgres (Neon).
+// Seluruh proses berjalan dalam satu transaksi, jadi tidak pernah tertinggal setengah jalan.
 import { Pool } from "@neondatabase/serverless";
 import { bootstrap } from "../db/bootstrap.mjs";
 
@@ -9,12 +10,17 @@ if (!url) {
 }
 
 const pool = new Pool({ connectionString: url });
+const client = await pool.connect();
 try {
-  const res = await bootstrap(async (sql, params) => (await pool.query(sql, params)).rows);
-  console.log(`[migrate] selesai${res.seeded ? " + data awal dibuat" : ""}.`);
+  await client.query("BEGIN");
+  const res = await bootstrap(async (sql, params) => (await client.query(sql, params)).rows);
+  await client.query("COMMIT");
+  console.log(`[migrate] selesai${res.seeded ? " + data awal dibuat" : ""}${res.migrated ? " + data lama dipindah ke perpustakaan-demo" : ""}.`);
 } catch (err) {
-  console.error("[migrate] gagal:", err);
+  await client.query("ROLLBACK").catch(() => {});
+  console.error("[migrate] gagal, semua perubahan dibatalkan:", err);
   process.exit(1);
 } finally {
+  client.release();
   await pool.end();
 }

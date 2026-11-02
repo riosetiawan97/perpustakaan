@@ -1,29 +1,28 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { and, eq, isNull, asc } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { getDb, schema } from "@/lib/db";
-import { getSession } from "@/lib/auth";
+import { getLibrary } from "@/lib/auth";
 import { spineColor } from "@/components/ui";
-import { formatDate } from "@/lib/format";
-import { FINE_PER_DAY, LOAN_DAYS } from "@/lib/rules";
-import { formatRupiah } from "@/lib/format";
+import { formatDate, formatRupiah } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 const { books, categories, loans } = schema;
 
-export default async function DetailBuku({ params }: { params: Promise<{ id: string }> }) {
-  const id = Number((await params).id);
+export default async function DetailBuku({ params }: { params: Promise<{ slug: string; id: string }> }) {
+  const { slug, id: rawId } = await params;
+  const id = Number(rawId);
   if (!id) notFound();
+  const { library, isAdmin } = await getLibrary(slug);
   const db = await getDb();
   const [row] = await db
     .select({ b: books, cat: categories.name })
     .from(books)
     .leftJoin(categories, eq(books.categoryId, categories.id))
-    .where(eq(books.id, id))
+    .where(and(eq(books.id, id), eq(books.libraryId, library.id)))
     .limit(1);
   if (!row) notFound();
   const { b, cat } = row;
-  const s = await getSession();
 
   const nextBack =
     b.availableCopies === 0
@@ -32,7 +31,7 @@ export default async function DetailBuku({ params }: { params: Promise<{ id: str
 
   return (
     <div className="max-w-2xl">
-      <Link href="/" className="mb-4 inline-block text-sm text-muted hover:text-ink">← Kembali ke katalog</Link>
+      <Link href={`/p/${slug}`} className="mb-4 inline-block text-sm text-muted hover:text-ink">← Kembali ke katalog</Link>
       <article className="spine panel p-6" style={{ "--spine": spineColor(b.categoryId) } as React.CSSProperties}>
         <p className="mb-1 text-sm text-muted">{cat ?? "Tanpa kategori"}</p>
         <h1 className="mb-1 text-3xl font-bold leading-tight">{b.title}</h1>
@@ -57,12 +56,10 @@ export default async function DetailBuku({ params }: { params: Promise<{ id: str
             </p>
           )}
           <p className="mt-1 text-sm text-muted">
-            Bawa kartu anggota ke meja sirkulasi. Lama pinjam {LOAN_DAYS} hari, denda {formatRupiah(FINE_PER_DAY)} per hari terlambat.
+            Tunjukkan nomor anggota di meja sirkulasi {library.name}. Lama pinjam {library.loanDays} hari, denda {formatRupiah(library.finePerDay)} per hari terlambat.
           </p>
         </div>
-        {s?.role === "admin" && (
-          <Link href={`/admin/buku/${b.id}`} className="btn-ghost mt-4">Ubah data buku</Link>
-        )}
+        {isAdmin && <Link href={`/p/${slug}/admin/buku/${b.id}`} className="btn-ghost mt-4">Ubah data buku</Link>}
       </article>
     </div>
   );

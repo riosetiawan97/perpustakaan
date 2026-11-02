@@ -1,27 +1,30 @@
 # Perpustakaan
 
-Sistem informasi perpustakaan untuk web dan mobile (PWA): katalog buku, keanggotaan, sirkulasi peminjaman, dan denda keterlambatan.
+Platform perpustakaan untuk web dan mobile (PWA). Siapa saja bisa mendaftarkan perpustakaannya sendiri (taman baca, perpustakaan sekolah, koleksi komunitas). Tiap perpustakaan punya katalog, petugas, anggota, dan aturan peminjamannya sendiri.
 
 ## Fitur
 
-**Pengunjung / anggota**
-- Katalog buku dengan pencarian (judul, penulis, ISBN), filter kategori, dan filter "hanya yang tersedia"
-- Detail buku: lokasi rak, jumlah eksemplar tersedia, perkiraan tanggal kembali jika sedang dipinjam semua
-- Daftar anggota mandiri (nomor anggota `AGT-xxxx` otomatis)
-- Halaman "Pinjaman saya": buku yang sedang dipinjam, tanggal kembali, denda berjalan, riwayat
-- Profil dan ganti password
+**Platform**
+- Direktori perpustakaan dengan pencarian nama/kota
+- Satu akun untuk banyak perpustakaan; halaman "Perpustakaan saya" berisi semua keanggotaan
+- Daftarkan perpustakaan baru: pembuat otomatis menjadi petugas pertama, alamat halaman `/p/nama-perpustakaan`
 
-**Petugas (admin)**
-- Ringkasan: jumlah pinjaman aktif, keterlambatan, anggota, koleksi, aktivitas terakhir
-- Sirkulasi: catat peminjaman (dengan no. anggota/email), terima pengembalian, tandai denda lunas
-- Kelola buku: tambah, ubah, hapus (buku yang punya riwayat pinjam tidak bisa dihapus)
-- Kelola anggota: lihat pinjaman & denda, aktifkan/nonaktifkan
+**Pengunjung / anggota** (per perpustakaan)
+- Katalog buku: pencarian judul/penulis/ISBN, filter kategori, filter "hanya yang tersedia"
+- Detail buku: lokasi rak, eksemplar tersedia, perkiraan tanggal kembali
+- Gabung jadi anggota dengan satu klik (nomor anggota `AGT-xxxx` otomatis per perpustakaan)
+- Pinjaman saya: buku yang dipinjam, tanggal kembali, denda berjalan, riwayat
 
-**Aturan peminjaman** (`lib/rules.ts`)
-- Lama pinjam 7 hari, maksimal 3 buku aktif per anggota
-- Denda Rp1.000 per hari keterlambatan; anggota dengan denda belum lunas tidak bisa meminjam
+**Petugas** (per perpustakaan)
+- Ringkasan: pinjaman aktif, keterlambatan, anggota, koleksi, aktivitas terakhir
+- Sirkulasi: catat peminjaman (no. anggota/email), terima pengembalian, tandai denda lunas
+- Kelola buku dan kategori
+- Kelola anggota: tambah lewat email, jadikan petugas, aktifkan/nonaktifkan
+- Pengaturan: profil perpustakaan, lama pinjam, maks. buku per anggota, denda per hari, keanggotaan terbuka/tertutup
 
-**Mobile**: aplikasi bisa di-install ke home screen (PWA), dengan navigasi bawah di layar kecil dan halaman offline.
+**Keamanan data**: setiap query dibatasi `library_id`; petugas satu perpustakaan tidak bisa melihat atau mengubah data perpustakaan lain (diuji end-to-end).
+
+**Mobile**: bisa di-install ke home screen (PWA) dan punya halaman offline.
 
 ## Stack
 
@@ -39,8 +42,9 @@ Dibuat otomatis saat database pertama kali diisi:
 
 | Peran | Email | Password |
 | --- | --- | --- |
-| Petugas | admin@perpustakaan.id | `admin123` (atau nilai `ADMIN_PASSWORD`) |
-| Anggota | anggota@perpustakaan.id | `anggota123` |
+| Petugas Perpustakaan Demo | admin@perpustakaan.id | `admin123` (atau nilai `ADMIN_PASSWORD`) |
+| Petugas Taman Baca Melati | melati@perpustakaan.id | `melati123` |
+| Anggota di kedua perpustakaan | anggota@perpustakaan.id | `anggota123` |
 
 Segera ganti password admin lewat menu Profil setelah deploy.
 
@@ -54,7 +58,7 @@ npm run dev        # http://localhost:3000
 Tanpa `DATABASE_URL`, aplikasi memakai Postgres in-memory (PGlite) berisi data contoh; data hilang saat server dimatikan. Untuk memakai database sungguhan, salin `.env.example` ke `.env.local` dan isi `DATABASE_URL`.
 
 ```bash
-npm test           # unit test aturan peminjaman
+npm test           # unit test aturan peminjaman, slug, kode anggota
 npm run typecheck
 ```
 
@@ -64,13 +68,13 @@ npm run typecheck
 2. Tambahkan Neon Postgres dari tab **Storage** (mengisi `DATABASE_URL`).
 3. Opsional: set `AUTH_SECRET` (string acak) dan `ADMIN_PASSWORD`.
 
-Saat build, `scripts/migrate.mjs` membuat tabel dan data awal jika belum ada. Setiap push ke branch utama otomatis terdeploy.
+Saat build, `scripts/migrate.mjs` membuat/memperbarui tabel dalam satu transaksi. Database versi satu-perpustakaan otomatis dipindah menjadi "Perpustakaan Demo" tanpa kehilangan data; database kosong diisi data contoh. Setiap push ke branch utama otomatis terdeploy.
 
 ## Struktur
 
 ```
-app/            halaman & server actions (app/actions.ts)
-  admin/        halaman petugas
+app/            halaman global (direktori, akun) & server actions (app/actions.ts)
+  p/[slug]/     katalog, pinjaman, dan admin per perpustakaan
 components/     komponen UI
 db/             skema SQL & data awal (dipakai migrasi dan mode lokal)
 lib/            koneksi database, auth, aturan peminjaman

@@ -5,7 +5,7 @@ import { SWRegister } from "@/components/SWRegister";
 
 export const metadata: Metadata = {
   title: { default: "Perpustakaan", template: "%s · Perpustakaan" },
-  description: "Katalog buku, keanggotaan, dan peminjaman perpustakaan.",
+  description: "Platform perpustakaan: daftarkan perpustakaan Anda, kelola katalog, anggota, dan peminjaman.",
   appleWebApp: { capable: true, title: "Perpustakaan", statusBarStyle: "default" },
   icons: { icon: "/icon.svg", apple: "/icon-192.png" },
 };
@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-dvh">
         <Nav />
-        <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:pb-12">{children}</main>
+        <main className="mx-auto w-full max-w-5xl px-4 pb-16 pt-6">{children}</main>
         <SWRegister />
       </body>
     </html>
