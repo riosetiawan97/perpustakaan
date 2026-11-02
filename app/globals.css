@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f3f5f2;
+  --color-sheet: #ffffff;
+  --color-ink: #1c2321;
+  --color-muted: #5b6763;
+  --color-line: #d9dfdb;
+  --color-shelf: #1f3d34;
+  --color-shelf-soft: #e3ebe7;
+  --color-brass: #a87a1f;
+  --color-brass-soft: #f4ead3;
+  --color-late: #b3402e;
+  --color-late-soft: #f7e3df;
+  --font-serif: "Literata", Georgia, serif;
+  --font-sans: "Public Sans", system-ui, sans-serif;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+h1, h2, h3 { font-family: var(--font-serif); letter-spacing: -0.01em; }
+:focus-visible { outline: 2px solid var(--color-brass); outline-offset: 2px; }
+
+@layer components {
+  .btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50 bg-shelf text-white hover:bg-[#173029]; }
+  .btn-ghost { @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50 border border-line bg-sheet text-ink hover:bg-shelf-soft; }
+  .btn-danger { @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50 border border-late/30 bg-sheet text-late hover:bg-late-soft; }
+  .field { @apply block w-full rounded-md border border-line bg-sheet px-3 py-2 text-sm placeholder:text-muted/70 focus:border-shelf focus:outline-none; }
+  .label { @apply mb-1 block text-sm font-medium text-ink; }
+  .panel { @apply rounded-lg border border-line bg-sheet; }
+  .table { @apply w-full text-left text-sm; }
+  .table th { @apply border-b border-line px-3 py-2 font-medium text-muted; }
+  .table td { @apply border-b border-line/70 px-3 py-2.5 align-top; }
+}
+
+/* Punggung buku: warna diturunkan dari kategori */
+.spine { border-left: 6px solid var(--spine, var(--color-shelf)); }
+
+/* Cap tanggal kembali, seperti stempel di kartu buku */
+.stamp {
+  display: inline-block;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  transform: rotate(-2deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
